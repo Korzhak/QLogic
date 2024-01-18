@@ -16,9 +16,10 @@ class Quaternion:
         if not isinstance(q, np.ndarray):
             raise ValueError(MSG_NORMALIZE_FIRST)
 
-        self._q_val = q if q.any() and q.shape[0] == 4 else RAW_Q_VAL
+        self._q_val = None
+        self.set_using_q(q)
 
-    def set_using_rotation_vector(self, rotation_vector: np.array, norm_q: bool = True):
+    def set_using_rotation_vector(self, rotation_vector: np.array):
         """
 
         :param rotation_vector:
@@ -37,7 +38,7 @@ class Quaternion:
         q = np.around(q, decimals=4)
         self._q_val = q / np.linalg.norm(q)
 
-    def set_using_euler(self, euler: np.array = np.zeros(3, dtype=np.float64), norm_q: bool = True):
+    def set_using_euler(self, euler: np.array = np.zeros(3, dtype=np.float64)):
         """
         Calculating quaternion using Euler angles
         """
@@ -60,6 +61,9 @@ class Quaternion:
 
         q = np.around(np.array([w, x, y, z], dtype=np.float64), decimals=4)
         self._q_val = q / np.linalg.norm(q)
+
+    def set_using_q(self, q: np.array = RAW_Q_VAL):
+        self._q_val = q if q.any() and q.shape[0] == 4 else RAW_Q_VAL
 
     def normalize(self):
         self._q_val /= self.length
