@@ -42,9 +42,6 @@ class Quaternion:
         """
         Calculating quaternion using Euler angles
         """
-        if not (euler.any() and euler.shape[0] == 3):
-            raise ValueError(MSG_NP_ARRAY_EULER)
-
         roll, pitch, yaw = euler
 
         c1 = np.cos(yaw * 0.5)
@@ -64,9 +61,11 @@ class Quaternion:
 
     def set_using_q(self, q: np.array = RAW_Q_VAL):
         self._q_val = q if q.any() and q.shape[0] == 4 else RAW_Q_VAL
+        self.normalize()
 
     def normalize(self):
-        self._q_val /= self.length
+        if self.length:
+            self._q_val /= self.length
 
     def multiply(self, q2, normalize_result: bool = True):
         """
@@ -90,23 +89,23 @@ class Quaternion:
 
     @property
     def w(self) -> np.float64:
-        return self._q_val[0]
+        return np.round(self._q_val[0], 3)
 
     @property
     def x(self) -> np.float64:
-        return self._q_val[1]
+        return np.round(self._q_val[1], 3)
 
     @property
     def y(self) -> np.float64:
-        return self._q_val[2]
+        return np.round(self._q_val[2], 3)
 
     @property
     def z(self) -> np.float64:
-        return self._q_val[3]
+        return np.round(self._q_val[3], 3)
 
     @property
     def length(self) -> float:
-        return np.linalg.norm(self._q_val)
+        return np.round(np.linalg.norm(self._q_val), 3)
 
     @property
     def euler(self) -> np.array:
@@ -132,22 +131,21 @@ class Quaternion:
     def rotation_vector(self) -> np.array:
         """
         Calculating of vector and rotation angle around this vector
+        :return: np.array[angle, x, y, z]
         """
-        res = np.zeros(4, dtype=np.float64)
+        vector = np.zeros(4, dtype=np.float64)
+        vector[0] = np.rad2deg(2 * np.arccos(self.w))
 
-        # angle
-        res[0] = np.rad2deg(2 * np.arccos(self._q_val[0]))
-
-        power_sum = self._q_val[1] ** 2 + self._q_val[2] ** 2 + self._q_val[3] ** 2
+        power_sum = self.x ** 2 + self.y ** 2 + self.z ** 2
         vector_len = np.linalg.norm(np.sqrt(power_sum if power_sum else 1))
 
-        res[1] = self._q_val[1] / vector_len
-        res[2] = self._q_val[2] / vector_len
-        res[3] = self._q_val[3] / vector_len
-        return res
+        vector[1] = self.x / vector_len
+        vector[2] = self.y / vector_len
+        vector[3] = self.z / vector_len
+        return vector
 
     @property
-    def dcm(self, get_dcm_for_qt: bool = False) -> np.array:
+    def dcm_for_qt(self) -> np.array:
         """
         Calculating DCM using quaternion
         """
@@ -165,13 +163,31 @@ class Quaternion:
         mZy = 2.0 * (y * z - x * w)
         mZz = 1.0 - 2.0 * (x ** 2 + y ** 2)
 
-        if get_dcm_for_qt:
-            dcm_for_qt = np.array([
-                [mZz, mXz, mYz],
-                [mZx, mXx, mYx],
-                [mZy, mXy, mYy]
-            ])
-            return np.around(dcm_for_qt, decimals=4)
+        dcm_for_qt = np.array([
+            [mZz, mXz, mYz],
+            [mZx, mXx, mYx],
+            [mZy, mXy, mYy]
+        ])
+        return np.around(dcm_for_qt, decimals=4)
+
+    @property
+    def dcm(self) -> np.array:
+        """
+        Calculating DCM using quaternion
+        """
+        w, x, y, z = self._q_val
+
+        mXx = 1.0 - 2.0 * (y ** 2 + z ** 2)
+        mXy = 2.0 * (x * y + w * z)
+        mXz = 2.0 * (x * z - y * w)
+
+        mYx = 2.0 * x * y - 2 * z * w
+        mYy = 1.0 - 2.0 * x ** 2 - 2 * z ** 2
+        mYz = 2.0 * (y * z + x * w)
+
+        mZx = 2.0 * (x * z + y * w)
+        mZy = 2.0 * (y * z - x * w)
+        mZz = 1.0 - 2.0 * (x ** 2 + y ** 2)
 
         dcm = np.array([
             [mXx, mYx, mZx],
