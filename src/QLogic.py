@@ -61,13 +61,16 @@ class Quaternion:
 
     def set_using_q(self, q: np.array = RAW_Q_VAL):
         self._q_val = q if q.any() and q.shape[0] == 4 else RAW_Q_VAL
-        self.normalize()
+
+    def set_vector_as_q(self, v: np.array):
+        if v.size == 3 and v.any():
+            self.set_using_q(np.array([0, *v], dtype=np.float64))
 
     def normalize(self):
         if self.length:
             self._q_val /= self.length
 
-    def multiply(self, q2, normalize_result: bool = True):
+    def multiply(self, q2, normalize_result: bool = False):
         """
         Multiplying current quaternions and q2 in arguments
         :param q2: second quaternion
