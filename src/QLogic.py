@@ -90,6 +90,16 @@ class Quaternion:
     def to_numpy(self) -> np.array:
         return self._q_val.copy()
 
+    def vector_to_numpy(self) -> np.array:
+        return self._q_val[1:]
+
+    @property
+    def conjugate(self):
+        res = Quaternion(self._q_val.copy())
+        res.normalize()
+        res._q_val *= np.array([1, -1, -1, -1])
+        return res
+
     @property
     def w(self) -> np.float64:
         return np.round(self._q_val[0], 3)
