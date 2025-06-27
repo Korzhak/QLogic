@@ -19,6 +19,10 @@ class Quaternion:
         self._q_val = None
         self.set_using_q(q)
 
+    def hard_update_q(self, w, x, y, z):
+        _q = np.around(np.array([w, x, y, z], dtype=np.float64), decimals=4)
+        self._q_val = _q / np.linalg.norm(_q)
+
     def set_using_rotation_vector(self, rotation_vector: np.array):
         """
 
