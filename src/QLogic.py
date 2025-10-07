@@ -107,23 +107,23 @@ class Quaternion:
 
     @property
     def w(self) -> np.float64:
-        return np.round(self._q_val[0], 3)
+        return np.round(self._q_val[0], 16)
 
     @property
     def x(self) -> np.float64:
-        return np.round(self._q_val[1], 3)
+        return np.round(self._q_val[1], 16)
 
     @property
     def y(self) -> np.float64:
-        return np.round(self._q_val[2], 3)
+        return np.round(self._q_val[2], 16)
 
     @property
     def z(self) -> np.float64:
-        return np.round(self._q_val[3], 3)
+        return np.round(self._q_val[3], 16)
 
     @property
     def length(self) -> float:
-        return np.round(np.linalg.norm(self._q_val), 3)
+        return np.round(np.linalg.norm(self._q_val), 16)
 
     @property
     def euler(self) -> np.array:
@@ -253,7 +253,7 @@ class Quaternion:
             raise ValueError(MSG_INT_FLOAT_ALLOW_ONLY)
 
     def __repr__(self):
-        return f"[w={self.w}\tx={self.x}\ty={self.y}\tz={self.z}]"
+        return f"[w={self.w}\t{self.x}i\t{self.y}j\t{self.z}k]"
 
     def __str__(self):
         return self.__repr__()
